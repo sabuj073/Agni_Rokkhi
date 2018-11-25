@@ -4,6 +4,9 @@ Servo bottom;
 Servo base;
 Servo hand;
 
+int temp_position;
+
+
 const int flamepin_left = A15;
 const int flamepin_middle = A14;
 const int flamepin_right = A13;
@@ -33,7 +36,7 @@ int flame_value_right = 1;
 
 void setup() {
 
-  Serial.begin(9600);
+  Serial.begin(9600); // Default baud rate of the Bluetooth module
 
   bottom.attach(26);
   bottom.write(130);
@@ -60,6 +63,7 @@ void setup() {
   pinMode(buzzer, OUTPUT);
 
   pinMode(water, OUTPUT);
+  digitalWrite(water, HIGH);
 
 }
 void loop() {
@@ -70,7 +74,6 @@ void loop() {
   digitalWrite(trigPin, LOW);
   duration = pulseIn(echoPin, HIGH);
   distance = (duration / 2) / 29.1;
-  delay(10);
 
   if ((distance <= 15))
   {
@@ -81,14 +84,14 @@ void loop() {
   }
   else
   {
-    digitalWrite(buzzer,LOW);
+    digitalWrite(buzzer, LOW);
   }
-
 
   if (Serial.available() > 0)
   {
     char data;
     data = Serial.read();
+    Serial.print(data);
 
     switch (data)
     {
@@ -127,7 +130,7 @@ void loop() {
       case 'B':
         Serial.print("Reverse\n");
         analogWrite(Motor_B_Enable, 100);
-        analogWrite(Motor_A_Enable, 1000);
+        analogWrite(Motor_A_Enable, 100);
         digitalWrite(Motor_A_Forward, LOW);
         digitalWrite(Motor_B_Forward, LOW);
         digitalWrite(Motor_A_Reverse, HIGH);
@@ -140,11 +143,22 @@ void loop() {
         break;
 
       case 'w':
-        base.write(160);
+        // base.write(160);
+        for (int i = 60 ; i <= 160 ; i++)
+        {
+          base.write(i);
+          delay(20);
+        }
         break;
 
       case 'W':
-        base.write(70);
+        for (int i = 160 ; i >= 60 ; i--)
+        {
+          base.write(i);
+          delay(20);
+        }
+
+        // base.write(70);
         break;
 
       case 'U':
@@ -152,7 +166,7 @@ void loop() {
         break;
 
       case 'u':
-        hand.write(160);
+        hand.write(170);
         break;
 
 
@@ -189,17 +203,13 @@ void loop() {
         break;
 
       case '9':
-        bottom.write(200);
+        bottom.write(20);
         break;
 
 
-        default:
+      default:
         analogWrite(Motor_A_Enable, 0);
         analogWrite(Motor_B_Enable, 0);
-        break;
-        
-
-
 
     }
 
